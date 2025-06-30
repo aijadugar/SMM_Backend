@@ -6,7 +6,7 @@ load_dotenv()
 import os
 
 app = Flask(__name__)
-CORS(app, origins=["https://smm-backend-wljg.onrender.com", "http://127.0.0.1:5500", ""])
+CORS(app, origins=["https://smm-backend-wljg.onrender.com", "http://127.0.0.1:5500", "https://thesmmhub.vercel.app/"])
 
 OPENAI_CLIENT = os.getenv("OPENAI_CLIENT")
 CLIENT_MODEL = os.getenv("CLIENT_MODEL")
