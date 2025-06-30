@@ -2,11 +2,16 @@ from openai import OpenAI
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-load_dotenv()
 import os
 
+load_dotenv()
+
 app = Flask(__name__)
-CORS(app, origins=["https://smm-backend-wljg.onrender.com", "http://localhost:5173/", "https://thesmmhub.vercel.app/"])
+CORS(app, origins=[
+    "http://localhost:5173",
+    "https://smm-backend-wljg.onrender.com",
+    "https://thesmmhub.vercel.app"
+])
 
 OPENAI_CLIENT = os.getenv("OPENAI_CLIENT")
 CLIENT_MODEL = os.getenv("CLIENT_MODEL")
@@ -18,17 +23,21 @@ def generate_link():
     data = request.get_json()
     user_text = data.get('text', '')
 
-    model = client.images.generate(model=CLIENT_MODEL, 
-                                    prompt=user_text,
-                                    n=1,
-                                    response_format='url',
-                                    size="1500x600"
-    )
+    try:
+        model = client.images.generate(
+            model=CLIENT_MODEL,
+            prompt=user_text,
+            n=1,
+            response_format='url',
+            size="1500x600"
+        )
 
-    img_url = model.data[0].url
-
-    return jsonify({'link': img_url})
+        img_url = model.data[0].url
+        return jsonify({'link': img_url})
+    
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'link': 'Error generating image.'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
-
