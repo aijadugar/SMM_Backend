@@ -2,6 +2,7 @@ from openai import OpenAI
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from serpapi import GoogleSearch
 import os
 
 load_dotenv()
@@ -15,6 +16,7 @@ CORS(app, origins=[
 
 OPENAI_CLIENT = os.getenv("OPENAI_CLIENT")
 CLIENT_MODEL = os.getenv("CLIENT_MODEL")
+SERP_API = os.getenv('SERP_API')
 
 client = OpenAI(base_url='https://api.a4f.co/v1', api_key=OPENAI_CLIENT)
 
@@ -38,6 +40,28 @@ def generate_link():
     except Exception as e:
         print("Error:", e)
         return jsonify({'link': 'Error generating image.'}), 500
+
+@app.route('/hashtags', methods=['POST'])
+def get_hashtag_suggestions():
+    data = request.get_json()
+    topic = data.get('topic', '')
+    params = {
+        "engine": "google_autocomplete",
+        "q": topic,
+        "api_key": SERP_API,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    hashtags = []
+    for item in results.get("suggestions", []):
+        keyword = item.get("value") or item.get("suggestion")
+        if keyword:
+            hashtag = "#" + keyword.lower().replace(" ", "")
+            hashtags.append(hashtag)
+
+    return jsonify({'hashtags': hashtags}) 
 
 if __name__ == '__main__':
     app.run(debug=True)
