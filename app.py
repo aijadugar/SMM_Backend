@@ -45,6 +45,8 @@ def generate_link():
 def get_hashtag_suggestions():
     data = request.get_json()
     topic = data.get('topic', '')
+    print(f"🔍 Topic received: {topic}")
+
     params = {
         "engine": "google_autocomplete",
         "q": topic,
@@ -53,6 +55,7 @@ def get_hashtag_suggestions():
 
     search = GoogleSearch(params)
     results = search.get_dict()
+    print("📦 SerpApi response:", results)
 
     hashtags = []
     for item in results.get("suggestions", []):
@@ -61,7 +64,9 @@ def get_hashtag_suggestions():
             hashtag = "#" + keyword.lower().replace(" ", "")
             hashtags.append(hashtag)
 
-    return jsonify({'hashtags': hashtags}) 
+    print("✅ Hashtags generated:", hashtags)
+
+    return jsonify({'hashtags': hashtags})
 
 if __name__ == '__main__':
     app.run(debug=True)
